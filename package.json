@@ -1,0 +1,29 @@
+{
+  "name": "tabadoo",
+  "version": "1.0.0",
+  "description": "A browser extension to efficiently manage and save tabs",
+  "main": "src/background/background.js",
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "watch": "webpack --config webpack.config.js --watch",
+    "lint": "eslint src/**/*.js",
+    "test": "jest"
+  },
+  "author": "Deepak Surya",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
+    "babel-loader": "^8.2.2",
+    "copy-webpack-plugin": "^9.0.1",
+    "css-loader": "^6.2.0",
+    "eslint": "^7.32.0",
+    "jest": "^27.0.6",
+    "style-loader": "^3.2.1",
+    "webpack": "^5.50.0",
+    "webpack-cli": "^4.8.0"
+  },
+  "dependencies": {
+    "dragula": "^3.7.3"
+  }
+}

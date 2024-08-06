@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tabadoo</title>
+    <style>
+      body {
+        width: 300px;
+        padding: 10px;
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        text-align: center;
+      }
+      button {
+        margin-top: 10px;
+        padding: 5px 10px;
+        font-size: 14px;
+      }
+      .message {
+        margin-top: 10px;
+        padding: 5px;
+        background-color: #f0f0f0;
+        border-radius: 3px;
+        display: none;
+      }
+      #savedTabs {
+        margin-top: 20px;
+        text-align: left;
+      }
+      .tab-item {
+        margin-bottom: 5px;
+      }
+      .tab-item a {
+        text-decoration: none;
+        color: #333;
+      }
+      .tab-item a:hover {
+        text-decoration: underline;
+      }
+      .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+      }
+      .button-container button {
+        flex: 1;
+        margin: 0 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Tabadoo</h1>
+      <button id="saveAllTabs">Save All Tabs</button>
+      <button id="showAllTabs">Show All Saved Tabs</button>
+      <div id="message" class="message"></div>
+      <div id="savedTabs"></div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -23,7 +23,8 @@ async function loadSavedTabs() {
   }
 
   // Initialize drag and drop
-  dragula([tabList]);
+  // dragula([tabList]);
+  // initDragAndDrop();
 }
 
 function groupTabsByDate(tabs) {
@@ -127,20 +128,57 @@ async function exportUrls() {
 }
 
 // Function to update the order of tabs after drag and drop
+// async function updateTabOrder() {
+//   const tabItems = document.querySelectorAll(".tab-item");
+//   const updatedTabs = Array.from(tabItems).map((item) => {
+//     const link = item.querySelector("a");
+//     return {
+//       url: link.href,
+//       title: link.textContent,
+//       date: new Date().toISOString(), // You might want to preserve the original date instead
+//     };
+//   });
+
+//   await storage.set("tabadoo", updatedTabs);
+//   console.log("Tab order updated");
+// }
+
+// function initDragAndDrop() {
+//   const containers = Array.from(document.querySelectorAll(".tab-list"));
+//   const drake = dragula(containers, {
+//     moves: (el, container, handle) => {
+//       return (
+//         handle.classList.contains("tab-item") &&
+//         !handle.classList.contains("delete-icon")
+//       );
+//     },
+//   });
+
+//   drake.on("drop", (el, target, source, sibling) => {
+//     updateTabOrder();
+//   });
+// }
+
 async function updateTabOrder() {
-  const tabItems = document.querySelectorAll(".tab-item");
-  const updatedTabs = Array.from(tabItems).map((item) => {
-    const link = item.querySelector("a");
-    return {
-      url: link.href,
-      title: link.textContent,
-      date: new Date().toISOString(), // You might want to preserve the original date instead
-    };
+  const tabGroups = Array.from(document.querySelectorAll(".time-group"));
+  const newTabadoo = [];
+
+  tabGroups.forEach((group) => {
+    const tabItems = Array.from(group.querySelectorAll(".tab-item"));
+    tabItems.forEach((item) => {
+      newTabadoo.push({
+        url: item.dataset.url,
+        title: item.querySelector("a").textContent,
+        date: new Date(
+          group.querySelector("h2").textContent.split(" - ")[0]
+        ).toISOString(),
+      });
+    });
   });
 
-  await storage.set("tabadoo", updatedTabs);
+  await storage.set("tabadoo", newTabadoo);
   console.log("Tab order updated");
 }
 
 // Initialize drag and drop functionality
-dragula([document.getElementById("tabList")]).on("dragend", updateTabOrder);
+// dragula([document.getElementById("tabList")]).on("dragend", updateTabOrder);

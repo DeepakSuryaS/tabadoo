@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       if (response && response.success) {
-        showMessage("All tabs saved successfully!");
+        showMessage(`Saved ${response.newTabsCount} new tabs successfully!`);
         loadSavedTabs(); // Reload the saved tabs list
       } else {
         console.error(

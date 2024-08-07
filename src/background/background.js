@@ -84,18 +84,29 @@ async function sendTabToTabadoo(tab) {
 
 async function sendAllTabsToTabadoo() {
   try {
-    const tabs = await browserAPI.tabs.query({ currentWindow: true });
+    const tabs = await new Promise((resolve) => {
+      browserAPI.tabs.query({ currentWindow: true }, resolve);
+    });
+
     const tabInfos = tabs.map((tab) => ({
       url: tab.url,
       title: tab.title,
       date: new Date().toISOString(),
     }));
 
-    const tabadoo = (await storage.get("tabadoo")) || [];
-    tabadoo.push(...tabInfos);
-    await storage.set("tabadoo", tabadoo);
-    console.log("All tabs saved to Tabadoo");
-    return { success: true };
+    const existingTabs = (await storage.get("tabadoo")) || [];
+
+    // Filter out duplicates
+    const newTabs = tabInfos.filter(
+      (newTab) =>
+        !existingTabs.some((existingTab) => existingTab.url === newTab.url)
+    );
+
+    const updatedTabs = [...existingTabs, ...newTabs];
+    await storage.set("tabadoo", updatedTabs);
+
+    console.log(`${newTabs.length} new tabs saved to Tabadoo`);
+    return { success: true, newTabsCount: newTabs.length };
   } catch (error) {
     console.error("Error in sendAllTabsToTabadoo:", error);
     return { success: false, error: error.message };

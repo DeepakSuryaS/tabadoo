@@ -24,5 +24,10 @@
   "chrome_url_overrides": {
     "newtab": "tabadoo.html"
   },
-  "web_accessible_resources": ["tabadoo.html"]
+  "web_accessible_resources": ["tabadoo.html"],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "hello@tabadoo.com"
+    }
+  }
 }

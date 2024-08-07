@@ -1,5 +1,3 @@
-// src/popup/popup.js
-
 import storage from "../utils/storage";
 import browserAPI from "../utils/browserAPI";
 
@@ -44,32 +42,27 @@ function showMessage(message) {
 }
 
 async function loadSavedTabs() {
-  try {
-    const tabadoo = await storage.get("tabadoo");
-    const savedTabsElement = document.getElementById("savedTabs");
-    savedTabsElement.innerHTML = "<h2>Saved Tabs</h2>";
+  const tabadoo = (await storage.get("tabadoo")) || [];
+  const savedTabsElement = document.getElementById("savedTabs");
+  savedTabsElement.innerHTML = "<h2>Saved Tabs</h2>";
 
-    if (!tabadoo || tabadoo.length === 0) {
-      savedTabsElement.innerHTML += "<p>No saved tabs yet.</p>";
-    } else {
-      const tabList = document.createElement("ul");
-      tabadoo.forEach((tab) => {
-        const listItem = document.createElement("li");
-        listItem.className = "tab-item";
-        const link = document.createElement("a");
-        link.href = tab.url;
-        link.textContent = tab.title;
-        link.addEventListener("click", (e) => {
-          e.preventDefault();
-          browserAPI.tabs.create({ url: tab.url });
-        });
-        listItem.appendChild(link);
-        tabList.appendChild(listItem);
+  if (tabadoo.length === 0) {
+    savedTabsElement.innerHTML += "<p>No saved tabs yet.</p>";
+  } else {
+    const tabList = document.createElement("ul");
+    tabadoo.forEach((tab) => {
+      const listItem = document.createElement("li");
+      listItem.className = "tab-item";
+      const link = document.createElement("a");
+      link.href = tab.url;
+      link.textContent = tab.title;
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        browserAPI.tabs.create({ url: tab.url });
       });
-      savedTabsElement.appendChild(tabList);
-    }
-  } catch (error) {
-    console.error("Error loading saved tabs:", error);
-    showMessage("Failed to load saved tabs. Please try again.");
+      listItem.appendChild(link);
+      tabList.appendChild(listItem);
+    });
+    savedTabsElement.appendChild(tabList);
   }
 }

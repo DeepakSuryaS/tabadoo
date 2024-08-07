@@ -1,24 +1,15 @@
 import storage from "../utils/storage";
 import browserAPI from "../utils/browserAPI";
 
-// browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
-//   if (request.action === "saveAllTabs") {
-//     saveAllTabs().then(sendResponse);
-//     return true; // Indicates that the response is sent asynchronously
-//   }
-// });
-
 browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "saveAllTabs") {
-    sendAllTabsToTabadoo()
-      .then((result) => sendResponse(result))
-      .catch((error) => sendResponse({ success: false, error: error.message }));
+    saveAllTabs().then(sendResponse);
     return true; // Indicates that the response is sent asynchronously
   }
 });
 
 function initializeContextMenu() {
-  browserAPI.contextMenus.create({
+  chrome.contextMenus.create({
     id: "tabadoo",
     title: "Tabadoo",
     contexts: ["all"],
@@ -36,7 +27,7 @@ function initializeContextMenu() {
   ];
 
   menuItems.forEach((item) => {
-    browserAPI.contextMenus.create({
+    chrome.contextMenus.create({
       id: item.id,
       title: item.title,
       parentId: "tabadoo",
@@ -45,7 +36,7 @@ function initializeContextMenu() {
   });
 }
 
-browserAPI.contextMenus.onClicked.addListener((info, tab) => {
+chrome.contextMenus.onClicked.addListener((info, tab) => {
   switch (info.menuItemId) {
     case "sendThisTab":
       sendTabToTabadoo(tab);
@@ -65,7 +56,7 @@ browserAPI.contextMenus.onClicked.addListener((info, tab) => {
   }
 });
 
-browserAPI.browserAction.onClicked.addListener(() => {
+chrome.browserAction.onClicked.addListener(() => {
   sendAllTabsToTabadoo();
 });
 
@@ -82,9 +73,27 @@ async function sendTabToTabadoo(tab) {
   console.log("Tab saved to Tabadoo");
 }
 
+// async function sendAllTabsToTabadoo() {
+//   const tabs = await new Promise((resolve) =>
+//     chrome.tabs.query({ currentWindow: true }, resolve)
+//   );
+//   const tabInfos = tabs.map((tab) => ({
+//     url: tab.url,
+//     title: tab.title,
+//     date: new Date().toISOString(),
+//   }));
+
+//   const tabadoo = (await storage.get("tabadoo")) || [];
+//   tabadoo.push(...tabInfos);
+//   await storage.set("tabadoo", tabadoo);
+//   console.log("All tabs saved to Tabadoo");
+// }
+
 async function sendAllTabsToTabadoo() {
   try {
-    const tabs = await browserAPI.tabs.query({ currentWindow: true });
+    const tabs = await new Promise((resolve) =>
+      chrome.tabs.query({ currentWindow: true }, resolve)
+    );
     const tabInfos = tabs.map((tab) => ({
       url: tab.url,
       title: tab.title,
@@ -95,15 +104,16 @@ async function sendAllTabsToTabadoo() {
     tabadoo.push(...tabInfos);
     await storage.set("tabadoo", tabadoo);
     console.log("All tabs saved to Tabadoo");
-    return { success: true };
   } catch (error) {
     console.error("Error in sendAllTabsToTabadoo:", error);
-    return { success: false, error: error.message };
+    throw error; // Re-throw the error so it can be caught by the caller
   }
 }
 
 async function sendAllTabsExceptCurrentToTabadoo(currentTab) {
-  const tabs = await browserAPI.tabs.query({ currentWindow: true });
+  const tabs = await new Promise((resolve) =>
+    chrome.tabs.query({ currentWindow: true }, resolve)
+  );
   const tabInfos = tabs
     .filter((tab) => tab.id !== currentTab.id)
     .map((tab) => ({
@@ -119,7 +129,7 @@ async function sendAllTabsExceptCurrentToTabadoo(currentTab) {
 }
 
 async function sendAllTabsFromAllWindowsToTabadoo() {
-  const tabs = await browserAPI.tabs.query({});
+  const tabs = await new Promise((resolve) => chrome.tabs.query({}, resolve));
   const tabInfos = tabs.map((tab) => ({
     url: tab.url,
     title: tab.title,
@@ -144,6 +154,18 @@ async function excludeCurrentSiteFromTabadoo(tab) {
   }
 }
 
-browserAPI.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(() => {
   initializeContextMenu();
+});
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "saveAllTabs") {
+    sendAllTabsToTabadoo()
+      .then(() => sendResponse({ success: true }))
+      .catch((error) => {
+        console.error("Error saving all tabs:", error);
+        sendResponse({ success: false, error: error.message });
+      });
+    return true; // Indicates that the response is sent asynchronously
+  }
 });

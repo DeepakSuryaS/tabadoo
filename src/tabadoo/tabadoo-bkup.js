@@ -1,7 +1,5 @@
 import dragula from "dragula";
 import storage from "../utils/storage";
-import browserAPI from "../utils/browserAPI";
-
 import "../tabadoo/tabadoo.css";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -83,7 +81,7 @@ async function deleteTab(tab) {
 }
 
 async function openAndRemoveTab(tab) {
-  browserAPI.tabs.create({ url: tab.url }, () => {
+  chrome.tabs.create({ url: tab.url }, () => {
     deleteTab(tab);
   });
 }
